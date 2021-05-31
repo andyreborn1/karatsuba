@@ -1,27 +1,35 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from random import randint
 from timeit import timeit
+import pandas as pd
 
 from numpy.lib.function_base import append
+from pandas.core.indexes import multi
 
 
 plt.style.use('seaborn')
-plt.rcParams['figure.figsize'] = (11, 7)
+#plt.rcParams['figure.figsize'] = (11, 7)
+
+# Plot do gráfico
 
 
 def plot_grafico(entradas, tgma, kara):
 
     fig, ax = plt.subplots()
     ax.plot(entradas, tgma, '-b', label='Divisão e conquista')
+    #ax.plot(entradas, tgma, 'bo')
+
     ax.plot(entradas, kara, '--r', label='Karatsuba')
+    #ax.plot(entradas, kara, 'ro')
 
     ax.set_title('Grafico de tempo de execução')
     plt.legend()
 
-    plt.xlabel('Quantidade de algarismos na entrada')
-    plt.ylabel('Tempo de Execução')
+    plt.xlabel('Quantidade de digitos na entrada')
+    plt.ylabel('Tempo de Execução(s)')
     plt.show()
+
+# Retorna um número aleatório de n digitos
 
 
 def numgen(n):
@@ -31,6 +39,8 @@ def numgen(n):
         valor.append(str(randint(1, 9)))
 
     return int("".join(valor))
+
+# Multiplicação com algoritmo de karatsuba
 
 
 def karatsuba(a, b):
@@ -56,6 +66,8 @@ def karatsuba(a, b):
         x3 = karatsuba(a_dir, b_dir)
 
         return x1 * 10**(2*n2) + (x2-x1-x3) * 10**n2 + x3
+
+# Multiplicação por divisão e conquista
 
 
 def divide_mult(a, b):
@@ -84,21 +96,19 @@ def divide_mult(a, b):
         return x1*10**(2*n2)+(x2+x3)*10**n2+x4
 
 
-vet = []
+def main(n):
+    df = pd.DataFrame(columns=['digitos', 'num', 'multi', 'karatsuba'])
 
-for i in range(1, 50):
-    vet.append(i)
+    for i in range(n+1):
+        if i > 1:
+            val = numgen(i)
 
-tempos_divide = []
-tempos_karatsuba = []
+            a = timeit(lambda: divide_mult(val, val), number=1)
+            b = timeit(lambda: karatsuba(val, val), number=1)
+            df.loc[i, :] = [i, val, a, b]
 
-for valor in vet:
-    valor = numgen(valor)
+    plot_grafico(df['digitos'], df['multi'], df['karatsuba'])
+    # print(df)
 
-    tempos_divide.append(
-        timeit(lambda: divide_mult(valor, valor), number=200))
 
-    tempos_karatsuba.append(
-        timeit(lambda: karatsuba(valor, valor), number=200))
-
-plot_grafico(vet, tempos_divide, tempos_karatsuba)
+main(500)
