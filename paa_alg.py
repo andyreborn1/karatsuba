@@ -8,30 +8,24 @@ from pandas.core.indexes import multi
 
 
 plt.style.use('seaborn')
-#plt.rcParams['figure.figsize'] = (11, 7)
+
 
 # Plot do gráfico
-
-
 def plot_grafico(entradas, tgma, kara):
 
     fig, ax = plt.subplots()
     ax.plot(entradas, tgma, '-b', label='Divisão e conquista')
-    #ax.plot(entradas, tgma, 'bo')
-
     ax.plot(entradas, kara, '--r', label='Karatsuba')
-    #ax.plot(entradas, kara, 'ro')
 
     ax.set_title('Grafico de tempo de execução')
     plt.legend()
 
     plt.xlabel('Quantidade de digitos na entrada')
-    plt.ylabel('Tempo de Execução(s)')
+    plt.ylabel('Tempo de Execução(ms)')
     plt.show()
 
+
 # Retorna um número aleatório de n digitos
-
-
 def numgen(n):
     valor = []
     valor.append(str(randint(1, 9)))
@@ -40,9 +34,8 @@ def numgen(n):
 
     return int("".join(valor))
 
+
 # Multiplicação com algoritmo de karatsuba
-
-
 def karatsuba(a, b):
     if a < 10 or b < 10:
         return a*b
@@ -67,9 +60,8 @@ def karatsuba(a, b):
 
         return x1 * 10**(2*n2) + (x2-x1-x3) * 10**n2 + x3
 
+
 # Multiplicação por divisão e conquista
-
-
 def divide_mult(a, b):
     if a < 10 or b < 10:
         return a*b
@@ -96,6 +88,7 @@ def divide_mult(a, b):
         return x1*10**(2*n2)+(x2+x3)*10**n2+x4
 
 
+# execução principal
 def main(n):
     df = pd.DataFrame(columns=['digitos', 'num', 'multi', 'karatsuba'])
 
@@ -103,12 +96,11 @@ def main(n):
         if i > 1:
             val = numgen(i)
 
-            a = timeit(lambda: divide_mult(val, val), number=1)
-            b = timeit(lambda: karatsuba(val, val), number=1)
+            a = timeit(lambda: divide_mult(val, val), number=1)*1000
+            b = timeit(lambda: karatsuba(val, val), number=1)*1000
             df.loc[i, :] = [i, val, a, b]
 
     plot_grafico(df['digitos'], df['multi'], df['karatsuba'])
-    # print(df)
 
 
 main(500)
